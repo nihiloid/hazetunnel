@@ -61,23 +61,25 @@ func setupProxy(proxy *goproxy.ProxyHttpServer, Flags *ProxySetup) {
 		func(req *http.Request, ctx *goproxy.ProxyCtx) (*http.Request, *http.Response) {
 			var upstreamProxy *url.URL
 
-			// Override the User-Agent header if specified
-			// If one wasn't specified, verify a User-Agent is in the request
-			if len(Flags.UserAgent) != 0 {
-				req.Header["User-Agent"] = []string{Flags.UserAgent}
-			} else if len(req.Header["User-Agent"]) == 0 {
-				return req, missingParameterResponse(req, ctx, "User-Agent")
-			}
+			//// Override the User-Agent header if specified
+			//// If one wasn't specified, verify a User-Agent is in the request
+			//if len(Flags.UserAgent) != 0 {
+			//	req.Header["User-Agent"] = []string{Flags.UserAgent}
+			//} else if len(req.Header["User-Agent"]) == 0 {
+			//	return req, missingParameterResponse(req, ctx, "User-Agent")
+			//}
 
 			// Set the ClientHello from the User-Agent header
-			ua := req.Header["User-Agent"][0]
-			clientHelloId, err := getClientHelloID(ua, ctx)
-			if err != nil {
-				// Use the latest Chrome when the User-Agent header cannot be recognized
-				ctx.Logf("Error parsing User-Agent: %s", err)
-				clientHelloId = utls.HelloChrome_Auto
-				ctx.Logf("Continuing with Chrome %v ClientHello", clientHelloId.Version)
-			}
+			//ua := req.Header["User-Agent"][0]
+			//clientHelloId, err := getClientHelloID(ua, ctx)
+			//if err != nil {
+			//	// Use the latest Chrome when the User-Agent header cannot be recognized
+			//	ctx.Logf("Error parsing User-Agent: %s", err)
+			//	clientHelloId = utls.HelloChrome_Auto
+			//	ctx.Logf("Continuing with Chrome %v ClientHello", clientHelloId.Version)
+			//}
+
+			clientHelloId := utls.HelloRandomizedALPN
 
 			// Store the payload code in the request's context
 			ctx.Req = req.WithContext(
