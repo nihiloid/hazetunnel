@@ -2,14 +2,14 @@ package api
 
 import (
 	"context"
+	utls "github.com/refraction-networking/utls"
+	sf "gitlab.torproject.org/tpo/anti-censorship/pluggable-transports/snowflake/v2/common/utls"
 	"log"
 	"net/http"
 	"net/url"
 	"sync"
 
 	"github.com/elazarl/goproxy"
-	utls "github.com/refraction-networking/utls"
-	sf "gitlab.torproject.org/tpo/anti-censorship/pluggable-transports/snowflake/v2/common/utls"
 )
 
 type contextKey string
@@ -60,26 +60,25 @@ func setupProxy(proxy *goproxy.ProxyHttpServer, Flags *ProxySetup) {
 	proxy.OnRequest().DoFunc(
 		func(req *http.Request, ctx *goproxy.ProxyCtx) (*http.Request, *http.Response) {
 			var upstreamProxy *url.URL
-
-			//// Override the User-Agent header if specified
-			//// If one wasn't specified, verify a User-Agent is in the request
-			//if len(Flags.UserAgent) != 0 {
-			//	req.Header["User-Agent"] = []string{Flags.UserAgent}
-			//} else if len(req.Header["User-Agent"]) == 0 {
-			//	return req, missingParameterResponse(req, ctx, "User-Agent")
-			//}
-
-			// Set the ClientHello from the User-Agent header
-			//ua := req.Header["User-Agent"][0]
-			//clientHelloId, err := getClientHelloID(ua, ctx)
-			//if err != nil {
-			//	// Use the latest Chrome when the User-Agent header cannot be recognized
-			//	ctx.Logf("Error parsing User-Agent: %s", err)
-			//	clientHelloId = utls.HelloChrome_Auto
-			//	ctx.Logf("Continuing with Chrome %v ClientHello", clientHelloId.Version)
-			//}
-
 			clientHelloId := utls.HelloRandomizedALPN
+			utls.DefaultWeights = utls.Weights{
+				Extensions_Append_ALPN:                             0.7,
+				TLSVersMax_Set_VersionTLS13:                        1.0, // 0.4 default
+				CipherSuites_Remove_RandomCiphers:                  0.4,
+				SigAndHashAlgos_Append_ECDSAWithSHA1:               0.63,
+				SigAndHashAlgos_Append_ECDSAWithP521AndSHA512:      0.59,
+				SigAndHashAlgos_Append_PSSWithSHA256:               0.51,
+				SigAndHashAlgos_Append_PSSWithSHA384_PSSWithSHA512: 0.9,
+				CurveIDs_Append_X25519:                             0.71,
+				CurveIDs_Append_CurveP521:                          0.46,
+				Extensions_Append_Padding:                          0.62,
+				Extensions_Append_Status:                           0.74,
+				Extensions_Append_SCT:                              0.46,
+				Extensions_Append_Reneg:                            0.75,
+				Extensions_Append_EMS:                              0.77,
+				FirstKeyShare_Set_CurveP256:                        0.25,
+				Extensions_Append_ALPS:                             0.33,
+			}
 
 			// Store the payload code in the request's context
 			ctx.Req = req.WithContext(
@@ -103,22 +102,6 @@ func setupProxy(proxy *goproxy.ProxyHttpServer, Flags *ProxySetup) {
 			ctx.Logf("Scheme: %s", req.URL.Scheme)
 			if req.URL.Scheme == "http" {
 				ctx.Logf("Skipping TLS for HTTP request")
-
-				//// Set up upstream proxy for HTTP requests
-				//if upstreamProxy != nil {
-				//	ctx.Logf("Using upstream HTTP proxy: %s", upstreamProxy.String())
-				//
-				//	// Create a transport for HTTP requests through the upstream proxy
-				//	transport := &http.Transport{
-				//		Proxy: http.ProxyURL(upstreamProxy),
-				//	}
-				//
-				//	ctx.RoundTripper = goproxy.RoundTripperFunc(
-				//		func(req *http.Request, ctx *goproxy.ProxyCtx) (*http.Response, error) {
-				//			return transport.RoundTrip(req)
-				//		})
-				//}
-
 				return req, nil
 			}
 
