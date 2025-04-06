@@ -103,6 +103,22 @@ func setupProxy(proxy *goproxy.ProxyHttpServer, Flags *ProxySetup) {
 			ctx.Logf("Scheme: %s", req.URL.Scheme)
 			if req.URL.Scheme == "http" {
 				ctx.Logf("Skipping TLS for HTTP request")
+
+				//// Set up upstream proxy for HTTP requests
+				//if upstreamProxy != nil {
+				//	ctx.Logf("Using upstream HTTP proxy: %s", upstreamProxy.String())
+				//
+				//	// Create a transport for HTTP requests through the upstream proxy
+				//	transport := &http.Transport{
+				//		Proxy: http.ProxyURL(upstreamProxy),
+				//	}
+				//
+				//	ctx.RoundTripper = goproxy.RoundTripperFunc(
+				//		func(req *http.Request, ctx *goproxy.ProxyCtx) (*http.Response, error) {
+				//			return transport.RoundTrip(req)
+				//		})
+				//}
+
 				return req, nil
 			}
 
