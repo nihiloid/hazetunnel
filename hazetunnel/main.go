@@ -19,6 +19,7 @@ func main() {
 	flag.StringVar(&api.Config.Cert, "cert", "cert.pem", "TLS CA certificate (generated automatically if not present)")
 	flag.StringVar(&api.Config.Key, "key", "key.pem", "TLS CA key (generated automatically if not present)")
 	flag.BoolVar(&api.Config.Verbose, "verbose", false, "Enable verbose logging")
+	flag.StringVar(&Flags.UpstreamProxy, "upstream", "", "Upstream proxy address (socks5://*)")
 	flag.Parse()
 	// Set ID
 	Flags.Id = "cli"
