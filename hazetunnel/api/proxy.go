@@ -61,24 +61,7 @@ func setupProxy(proxy *goproxy.ProxyHttpServer, Flags *ProxySetup) {
 		func(req *http.Request, ctx *goproxy.ProxyCtx) (*http.Request, *http.Response) {
 			var upstreamProxy *url.URL
 			clientHelloId := utls.HelloRandomizedALPN
-			utls.DefaultWeights = utls.Weights{
-				Extensions_Append_ALPN:                             0.7,
-				TLSVersMax_Set_VersionTLS13:                        1.0, // 0.4 default
-				CipherSuites_Remove_RandomCiphers:                  0.4,
-				SigAndHashAlgos_Append_ECDSAWithSHA1:               0.63,
-				SigAndHashAlgos_Append_ECDSAWithP521AndSHA512:      0.59,
-				SigAndHashAlgos_Append_PSSWithSHA256:               0.51,
-				SigAndHashAlgos_Append_PSSWithSHA384_PSSWithSHA512: 0.9,
-				CurveIDs_Append_X25519:                             0.71,
-				CurveIDs_Append_CurveP521:                          0.46,
-				Extensions_Append_Padding:                          0.62,
-				Extensions_Append_Status:                           0.74,
-				Extensions_Append_SCT:                              0.46,
-				Extensions_Append_Reneg:                            0.75,
-				Extensions_Append_EMS:                              0.77,
-				FirstKeyShare_Set_CurveP256:                        0.25,
-				Extensions_Append_ALPS:                             0.33,
-			}
+			utls.DefaultWeights.TLSVersMax_Set_VersionTLS13 = 1.0
 
 			// Store the payload code in the request's context
 			ctx.Req = req.WithContext(
