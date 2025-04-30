@@ -4,9 +4,7 @@ go 1.24.1
 
 replace golang.org/x/net => github.com/nihiloid/x-net v0.0.1 // shuffle
 
-replace github.com/refraction-networking/utls => github.com/nihiloid/utls v0.0.1 // minimum randomized TLS version 1.2 when maximum TLS is 1.3
-
-//replace golang.org/x/net => /Users/nihiloid/IdeaProjects/x-net
+replace github.com/refraction-networking/utls => github.com/nihiloid/utls v0.0.2 // minimum randomized TLS version when maximum TLS is 1.3
 
 require (
 	github.com/cloudflare/cfssl v1.6.5
